@@ -1,10 +1,8 @@
-import { supabase } from './supabase';
 import { useState } from "react";
 
 function App() {
   const [page, setPage] = useState("home");
   const [role, setRole] = useState(null);
-  const [user, setUser] = useState(null);
 
   const login = (selectedRole) => {
     setRole(selectedRole);
