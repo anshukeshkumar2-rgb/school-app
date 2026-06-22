@@ -6,13 +6,13 @@ function App() {
 
   const login = (selectedRole) => {
     setRole(selectedRole);
-    setUser(selectedRole);
+    
     setPage("dashboard");
   };
 
   const logout = () => {
     setRole(null);
-    setUser(null);
+    
     setPage("home");
   };
 
