@@ -4,7 +4,28 @@ function App() {
   const [page, setPage] = useState("home");
   const [role, setRole] = useState(null);
 
-  const login = (selectedRole) => {
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
+const [error, setError] = useState("");
+
+const login = async () => {
+  setError("");
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+  if (error) {
+    setError("Email ya password galat hai!");
+    return;
+  }
+  if (email.includes("admin")) setRole("admin");
+  else if (email.includes("teacher")) setRole("teacher");
+  else if (email.includes("student")) setRole("student");
+  else if (email.includes("parent")) setRole("parent");
+  setPage("dashboard");
+};
+
+const login_old = (selectedRole) => {
     setRole(selectedRole);
     
     setPage("dashboard");
@@ -55,20 +76,37 @@ function App() {
       )}
 
       {/* LOGIN PAGE */}
-      {page === "login" && (
-        <div style={{ display: "flex", justifyContent: "center", padding: "60px 20px" }}>
-          <div style={{ background: "white", borderRadius: "16px", padding: "40px", width: "400px", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
-            <h2 style={{ textAlign: "center", color: "#1a56db", marginBottom: "30px" }}>Login Karein</h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              {[["👨‍💼 Admin Login", "admin"], ["👨‍🏫 Teacher Login", "teacher"], ["🎓 Student Login", "student"], ["👪 Parent Login", "parent"]].map(([label, r]) => (
-                <button key={r} onClick={() => login(r)} style={{ padding: "16px", background: "#1a56db", color: "white", border: "none", borderRadius: "10px", fontSize: "16px", cursor: "pointer", fontWeight: "bold" }}>
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+{page === "login" && (
+  <div style={{ display: "flex", justifyContent: "center", padding: "60px 20px" }}>
+    <div style={{ background: "white", borderRadius: "16px", padding: "40px", width: "400px", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
+      <h2 style={{ textAlign: "center", color: "#1a56db", marginBottom: "30px" }}>Login Karein</h2>
+      <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+        <input
+          type="email"
+          placeholder="Enter your email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={{ padding: "14px", borderRadius: "8px", border: "1px solid #ccc", fontSize: "16px" }}
+        />
+        <input
+          type="password"
+          placeholder="Enter your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={{ padding: "14px", borderRadius: "8px", border: "1px solid #ccc", fontSize: "16px" }}
+        />
+        {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
+        <button
+          onClick={login}
+          style={{ padding: "16px", background: "#1a56db", color: "white", border: "none", borderRadius: "10px", fontSize: "16px", cursor: "pointer", fontWeight: "bold" }}
+        >
+          Login
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/* DASHBOARD */}
       {page === "dashboard" && role === "admin" && <AdminDashboard />}
