@@ -1,48 +1,34 @@
+import { supabase } from './supabase';
 import { useState } from "react";
 
 function App() {
   const [page, setPage] = useState("home");
   const [role, setRole] = useState(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-const [email, setEmail] = useState("");
-const [password, setPassword] = useState("");
-const [error, setError] = useState("");
-
-const login = async () => {
-  setError("");
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-  if (error) {
-    setError("Email ya password galat hai!");
-    return;
-  }
-  if (email.includes("admin")) setRole("admin");
-  else if (email.includes("teacher")) setRole("teacher");
-  else if (email.includes("student")) setRole("student");
-  else if (email.includes("parent")) setRole("parent");
-  setPage("dashboard");
-};
-
-const login_old = (selectedRole) => {
-    setRole(selectedRole);
-    
+  const login = async () => {
+    setError("");
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) { setError("Email ya password galat hai!"); return; }
+    if (email.includes("admin")) setRole("admin");
+    else if (email.includes("teacher")) setRole("teacher");
+    else if (email.includes("student")) setRole("student");
+    else if (email.includes("parent")) setRole("parent");
     setPage("dashboard");
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setRole(null);
-    
     setPage("home");
   };
 
   return (
     <div style={{ fontFamily: "Arial", minHeight: "100vh", background: "#f0f4f8" }}>
-      
-      {/* NAVBAR */}
       <nav style={{ background: "#1a56db", padding: "14px 30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h1 style={{ color: "white", margin: 0, fontSize: "20px" }}>🏫OXFORD PUBLIC SCHOOL</h1>
+        <h1 style={{ color: "white", margin: 0, fontSize: "20px" }}>🏫 OXFORD PUBLIC SCHOOL</h1>
         <div style={{ display: "flex", gap: "16px" }}>
           <button onClick={() => setPage("home")} style={navBtn}>Home</button>
           <button onClick={() => setPage("notices")} style={navBtn}>Notices</button>
@@ -53,7 +39,6 @@ const login_old = (selectedRole) => {
         </div>
       </nav>
 
-      {/* HOME PAGE */}
       {page === "home" && (
         <div>
           <div style={{ background: "linear-gradient(135deg, #1a56db, #3b82f6)", color: "white", padding: "80px 40px", textAlign: "center" }}>
@@ -75,46 +60,33 @@ const login_old = (selectedRole) => {
         </div>
       )}
 
-      {/* LOGIN PAGE */}
-{page === "login" && (
-  <div style={{ display: "flex", justifyContent: "center", padding: "60px 20px" }}>
-    <div style={{ background: "white", borderRadius: "16px", padding: "40px", width: "400px", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
-      <h2 style={{ textAlign: "center", color: "#1a56db", marginBottom: "30px" }}>Login Karein</h2>
-      <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-        <input
-          type="email"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ padding: "14px", borderRadius: "8px", border: "1px solid #ccc", fontSize: "16px" }}
-        />
-        <input
-          type="password"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ padding: "14px", borderRadius: "8px", border: "1px solid #ccc", fontSize: "16px" }}
-        />
-        {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
-        <button
-          onClick={login}
-          style={{ padding: "16px", background: "#1a56db", color: "white", border: "none", borderRadius: "10px", fontSize: "16px", cursor: "pointer", fontWeight: "bold" }}
-        >
-          Login
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      {page === "login" && (
+        <div style={{ display: "flex", justifyContent: "center", padding: "60px 20px" }}>
+          <div style={{ background: "white", borderRadius: "16px", padding: "40px", width: "400px", boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
+            <h2 style={{ textAlign: "center", color: "#1a56db", marginBottom: "30px" }}>🔐 Login Karein</h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <input type="email" placeholder="Email likhein" value={email} onChange={(e) => setEmail(e.target.value)} style={{ padding: "12px", border: "1px solid #ddd", borderRadius: "8px", fontSize: "15px" }} />
+              <input type="password" placeholder="Password likhein" value={password} onChange={(e) => setPassword(e.target.value)} style={{ padding: "12px", border: "1px solid #ddd", borderRadius: "8px", fontSize: "15px" }} />
+              {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
+              <button onClick={login} style={{ padding: "14px", background: "#1a56db", color: "white", border: "none", borderRadius: "10px", fontSize: "16px", cursor: "pointer", fontWeight: "bold" }}>
+                Login →
+              </button>
+            </div>
+            <div style={{ marginTop: "20px", padding: "16px", background: "#f0f4ff", borderRadius: "8px", fontSize: "13px" }}>
+              <p style={{ margin: "4px 0", color: "#666" }}>👨‍💼 Admin: admin@oxford.com / Admin@123</p>
+              <p style={{ margin: "4px 0", color: "#666" }}>👨‍🏫 Teacher: teacher@oxford.com / Teacher@123</p>
+              <p style={{ margin: "4px 0", color: "#666" }}>🎓 Student: student@oxford.com / Student@123</p>
+              <p style={{ margin: "4px 0", color: "#666" }}>👪 Parent: parent@oxford.com / Parent@123</p>
+            </div>
+          </div>
+        </div>
+      )}
 
-
-      {/* DASHBOARD */}
       {page === "dashboard" && role === "admin" && <AdminDashboard />}
       {page === "dashboard" && role === "teacher" && <TeacherDashboard />}
       {page === "dashboard" && role === "student" && <StudentDashboard />}
       {page === "dashboard" && role === "parent" && <ParentDashboard />}
 
-      {/* NOTICES */}
       {page === "notices" && (
         <div style={{ padding: "40px" }}>
           <h2 style={{ color: "#1a56db" }}>📋 Notice Board</h2>
@@ -134,7 +106,6 @@ const login_old = (selectedRole) => {
         </div>
       )}
 
-      {/* GALLERY */}
       {page === "gallery" && (
         <div style={{ padding: "40px" }}>
           <h2 style={{ color: "#1a56db" }}>🖼️ Gallery</h2>
@@ -148,24 +119,21 @@ const login_old = (selectedRole) => {
         </div>
       )}
 
-      {/* CONTACT */}
       {page === "contact" && (
         <div style={{ padding: "40px" }}>
           <h2 style={{ color: "#1a56db" }}>📞 Contact Us</h2>
           <div style={{ ...card, textAlign: "left", maxWidth: "400px" }}>
             <p>📍 123, School Road, Delhi - 110001</p>
             <p>📞 011-12345678</p>
-            <p>📧 info@delhipublicschool.com</p>
+            <p>📧 info@oxford.com</p>
             <p>⏰ Mon-Sat: 8am - 4pm</p>
           </div>
         </div>
       )}
-
     </div>
   );
 }
 
-// ADMIN DASHBOARD
 function AdminDashboard() {
   return (
     <div style={{ padding: "40px" }}>
@@ -187,11 +155,9 @@ function AdminDashboard() {
   );
 }
 
-// TEACHER DASHBOARD
 function TeacherDashboard() {
   const [attendance, setAttendance] = useState({});
   const students = ["Rahul Sharma", "Priya Singh", "Amit Kumar", "Neha Gupta", "Rohit Verma"];
-
   return (
     <div style={{ padding: "40px" }}>
       <h2 style={{ color: "#1a56db" }}>👨‍🏫 Teacher Dashboard</h2>
@@ -214,7 +180,6 @@ function TeacherDashboard() {
   );
 }
 
-// STUDENT DASHBOARD
 function StudentDashboard() {
   const marks = [
     { subject: "Mathematics", marks: 85, total: 100 },
@@ -223,7 +188,6 @@ function StudentDashboard() {
     { subject: "English", marks: 88, total: 100 },
     { subject: "Social Science", marks: 74, total: 100 },
   ];
-
   return (
     <div style={{ padding: "40px" }}>
       <h2 style={{ color: "#1a56db" }}>🎓 Student Dashboard</h2>
@@ -245,7 +209,6 @@ function StudentDashboard() {
   );
 }
 
-// PARENT DASHBOARD
 function ParentDashboard() {
   return (
     <div style={{ padding: "40px" }}>
